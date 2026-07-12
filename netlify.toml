@@ -1,0 +1,21 @@
+[build]
+  command = "npx expo export -p web"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22.14.0"
+
+[[redirects]]
+  from = "/places"
+  to = "/.netlify/functions/places"
+  status = 200
+
+[[redirects]]
+  from = "/places/photo"
+  to = "/.netlify/functions/places"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
