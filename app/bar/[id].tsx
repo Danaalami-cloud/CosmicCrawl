@@ -1,0 +1,115 @@
+import React from "react";
+import { Image, Linking, Pressable, ScrollView, Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ThemeBackground from "../../components/ThemeBackground";
+import { useCrawl } from "../../context/CrawlContext";
+
+export default function BarDetail() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { bars, visitedIds, toggleVisited } = useCrawl();
+  const bar = bars.find((b) => b.id === id);
+
+  if (!bar) {
+    return (
+      <ThemeBackground>
+        <SafeAreaView className="flex-1 items-center justify-center px-6">
+          <Text className="text-white text-center">
+            Couldn't find that bar. Go back and regenerate your crawl.
+          </Text>
+          <Pressable onPress={() => router.back()} className="mt-6">
+            <Text className="text-acid font-bold">← Back</Text>
+          </Pressable>
+        </SafeAreaView>
+      </ThemeBackground>
+    );
+  }
+
+  const visited = visitedIds.has(bar.id);
+
+  return (
+    <ThemeBackground>
+      <SafeAreaView className="flex-1">
+        <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+          <View className="px-5 pt-2 flex-row items-center justify-between">
+            <Pressable onPress={() => router.back()}>
+              <Text className="text-white/60 text-2xl">←</Text>
+            </Pressable>
+          </View>
+
+          {bar.photoUrl ? (
+            <Image
+              source={{ uri: bar.photoUrl }}
+              className="w-full h-56 mt-3"
+              resizeMode="cover"
+            />
+          ) : (
+            <View className="w-full h-56 mt-3 items-center justify-center bg-void-light">
+              <Text className="text-5xl">🍸</Text>
+            </View>
+          )}
+
+          <View className="px-5 pt-5">
+            <Text className="text-white text-2xl font-extrabold">{bar.name}</Text>
+            <Text className="text-white/60 mt-1">{bar.address}</Text>
+
+            <View className="flex-row flex-wrap mt-4">
+              {bar.rating != null && (
+                <View className="bg-starlight/15 rounded-full px-3 py-1 mr-2 mb-2">
+                  <Text className="text-starlight text-xs font-semibold">
+                    ★ {bar.rating.toFixed(1)} ({bar.userRatingCount ?? 0})
+                  </Text>
+                </View>
+              )}
+              {bar.outdoorSeating && (
+                <View className="bg-acid/15 rounded-full px-3 py-1 mr-2 mb-2">
+                  <Text className="text-acid text-xs font-semibold">🌤️ Outdoor seating</Text>
+                </View>
+              )}
+              {bar.isOpenNow != null && (
+                <View
+                  className={`rounded-full px-3 py-1 mr-2 mb-2 ${
+                    bar.isOpenNow ? "bg-ufo/15" : "bg-white/10"
+                  }`}
+                >
+                  <Text
+                    className={`text-xs font-semibold ${
+                      bar.isOpenNow ? "text-ufo" : "text-white/50"
+                    }`}
+                  >
+                    {bar.isOpenNow ? "Open now" : "Closed"}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <Pressable
+              onPress={() => toggleVisited(bar.id)}
+              className={`mt-6 rounded-full py-4 items-center border ${
+                visited ? "bg-acid/20 border-acid" : "bg-transparent border-white/20"
+              }`}
+            >
+              <Text className={`font-bold ${visited ? "text-acid" : "text-white"}`}>
+                {visited ? "✓ Marked as visited" : "Mark this stop as visited"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => bar.mapsUri && Linking.openURL(bar.mapsUri)}
+              className="mt-3 rounded-full py-4 items-center bg-nebula"
+            >
+              <Text className="text-white font-bold">Open in Google Maps</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/games")}
+              className="mt-3 rounded-full py-4 items-center bg-plasma"
+            >
+              <Text className="text-white font-bold">🔞 Play a game here</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemeBackground>
+  );
+}

@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Cosmic Crawl",
+    "slug": "cosmic-crawl",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "cosmiccrawl",
+    "backgroundColor": "#0B0033",
+    "plugins": ["expo-router", "expo-location"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cosmiccrawl.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Cosmic Crawl uses your location to find nearby bars for your crawl."
+      }
+    },
+    "android": {
+      "package": "com.cosmiccrawl.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0033"
+      },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "server"
+    },
+    "extra": {
+      "router": {}
+    }
+  }
+}
