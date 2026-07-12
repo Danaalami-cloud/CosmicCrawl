@@ -21,10 +21,14 @@ export async function searchBars({
 }: SearchArgs): Promise<BarStop[]> {
   let res: Response;
   try {
-    // Relative URL: Expo Router's fetch resolves this against the dev server
-    // in development, and against the configured `origin` (see app.json's
-    // expo-router plugin config) in production.
-    res = await fetch("/places", {
+    // Call Netlify Function (same site, no CORS issues)
+    // Detects environment: localhost for dev, production URL for live
+    const apiUrl =
+      typeof window === "undefined" || process.env.NODE_ENV === "development"
+        ? "http://localhost:8888/.netlify/functions/places"
+        : "https://cosmiccrawl.netlify.app/.netlify/functions/places";
+
+    res = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
