@@ -4,6 +4,7 @@ import {
   FlatList,
   Pressable,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { router } from "expo-router";
@@ -19,6 +20,10 @@ export default function Results() {
     useCrawl();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   const fetchCrawl = useCallback(async () => {
     setLoading(true);
@@ -82,6 +87,39 @@ export default function Results() {
     fetchCrawl();
   }, [fetchCrawl]);
 
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const results = await searchBars({
+        filters: { ...filters, stopCount: 10 },
+        theme: null,
+        coords: null,
+        cityText: query,
+      });
+      setSearchResults(results);
+    } catch (e) {
+      console.error("Search error:", e);
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, [filters]);
+
+  const addBarToCrawl = (bar: any) => {
+    // Check if bar already exists
+    if (!bars.find((b) => b.id === bar.id)) {
+      setBars([...bars, bar]);
+      setSearchQuery("");
+      setSearchResults([]);
+      setShowSearch(false);
+    }
+  };
+
   return (
     <ThemeBackground>
       <SafeAreaView className="flex-1 px-5">
@@ -101,6 +139,66 @@ export default function Results() {
           {selectedOccasion?.emoji} {selectedOccasion?.label} · {filters.groupSize} people ·{" "}
           {filters.preferOutdoor ? "Prefer outdoor seating" : "Any seating"}
         </Text>
+
+        {/* Search bar toggle */}
+        {!showSearch && (
+          <Pressable
+            onPress={() => setShowSearch(true)}
+            className="mb-4 bg-nebula/20 rounded-full px-4 py-3 border border-nebula/50 flex-row items-center"
+          >
+            <Text className="text-nebula text-lg mr-2">🔍</Text>
+            <Text className="text-white/60 flex-1">Add a bar manually...</Text>
+          </Pressable>
+        )}
+
+        {/* Search panel */}
+        {showSearch && (
+          <View className="mb-4 bg-white/5 rounded-lg p-4 border border-white/10">
+            <View className="flex-row items-center gap-2 mb-3">
+              <TextInput
+                placeholder="Search for a bar..."
+                placeholderTextColor="#ffffff60"
+                value={searchQuery}
+                onChangeText={(text) => {
+                  setSearchQuery(text);
+                  handleSearch(text);
+                }}
+                className="flex-1 bg-white/10 text-white px-4 py-2 rounded-full border border-white/20"
+              />
+              <Pressable onPress={() => { setShowSearch(false); setSearchResults([]); setSearchQuery(""); }}>
+                <Text className="text-white/60 text-xl">✕</Text>
+              </Pressable>
+            </View>
+
+            {/* Search results */}
+            {searching && <ActivityIndicator color="#B4FF39" />}
+            {searchResults.length > 0 && (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id}
+                scrollEnabled={false}
+                renderItem={({ item }) => (
+                  <Pressable
+                    onPress={() => addBarToCrawl(item)}
+                    className="bg-white/10 rounded-lg p-3 mb-2 flex-row justify-between items-center border border-white/20"
+                  >
+                    <View className="flex-1">
+                      <Text className="text-white font-semibold">{item.name}</Text>
+                      <Text className="text-white/50 text-xs">{item.address}</Text>
+                      {item.rating && (
+                        <Text className="text-acid text-xs mt-1">★ {item.rating.toFixed(1)}</Text>
+                      )}
+                    </View>
+                    <Text className="text-ufo text-lg">+</Text>
+                  </Pressable>
+                )}
+              />
+            )}
+            {!searching && searchQuery.trim() && searchResults.length === 0 && (
+              <Text className="text-white/50 text-sm text-center py-2">No bars found</Text>
+            )}
+          </View>
+        )}
 
         {loading && (
           <View className="flex-1 items-center justify-center">
