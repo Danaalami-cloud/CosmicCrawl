@@ -3,6 +3,7 @@ import { Image, Linking, Pressable, ScrollView, Text, View } from "react-native"
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ThemeBackground from "../../components/ThemeBackground";
+import FloatingListsButton from "../../components/FloatingListsButton";
 import { useCrawl } from "../../context/CrawlContext";
 
 export default function BarDetail() {
@@ -35,7 +36,7 @@ export default function BarDetail() {
 
   return (
     <ThemeBackground>
-      <SafeAreaView className="flex-1">
+      <SafeAreaView className="flex-1 relative">
         <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
           {/* Header with back button and progress */}
           <View className="px-5 pt-2 flex-row items-center justify-between mb-4">
@@ -194,6 +195,9 @@ export default function BarDetail() {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      {/* Floating save to list button */}
+      <FloatingListsButton currentBar={bar} />
     </ThemeBackground>
   );
 }

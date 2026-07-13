@@ -54,3 +54,11 @@ export type GamePrompt = {
   intensity: Intensity;
   text: string;
 };
+
+export type SavedList = {
+  id: string;
+  name: string;
+  bars: BarStop[];
+  createdAt: number; // timestamp
+  updatedAt: number;
+};
