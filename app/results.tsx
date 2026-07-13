@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   Pressable,
   Text,
   TextInput,
@@ -16,7 +17,7 @@ import { useCrawl } from "../context/CrawlContext";
 import { PlacesApiError, searchBars } from "../services/placesService";
 
 export default function Results() {
-  const { filters, selectedTheme, selectedOccasion, bars, setBars, setUserLocation, visitedIds } =
+  const { filters, selectedTheme, selectedOccasion, bars, setBars, setUserLocation, visitedIds, savedLists, createList, addBarToList, loadLists } =
     useCrawl();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +25,9 @@ export default function Results() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showListModal, setShowListModal] = useState(false);
+  const [selectedBarForList, setSelectedBarForList] = useState<any>(null);
+  const [newListName, setNewListName] = useState("");
 
   const fetchCrawl = useCallback(async () => {
     setLoading(true);
@@ -85,6 +89,7 @@ export default function Results() {
 
   useEffect(() => {
     fetchCrawl();
+    loadLists();
   }, [fetchCrawl]);
 
   const handleSearch = useCallback(async (query: string) => {
@@ -120,6 +125,30 @@ export default function Results() {
     }
   };
 
+  const handleAddBarToList = (bar: any) => {
+    setSelectedBarForList(bar);
+    setShowListModal(true);
+    setNewListName("");
+  };
+
+  const handleSelectExistingList = async (listId: string) => {
+    if (selectedBarForList) {
+      await addBarToList(listId, selectedBarForList);
+      setShowListModal(false);
+      setSelectedBarForList(null);
+    }
+  };
+
+  const handleCreateNewList = async () => {
+    if (newListName.trim() && selectedBarForList) {
+      const newList = await createList(newListName);
+      await addBarToList(newList.id, selectedBarForList);
+      setShowListModal(false);
+      setSelectedBarForList(null);
+      setNewListName("");
+    }
+  };
+
   return (
     <ThemeBackground>
       <SafeAreaView className="flex-1 px-5">
@@ -130,9 +159,14 @@ export default function Results() {
           <Text className="text-white text-lg font-extrabold" numberOfLines={1}>
             {selectedTheme?.emoji} {selectedTheme?.label} Crawl
           </Text>
-          <Pressable onPress={fetchCrawl}>
-            <Text className="text-acid text-sm font-bold">Shuffle</Text>
-          </Pressable>
+          <View className="flex-row gap-3">
+            <Pressable onPress={fetchCrawl}>
+              <Text className="text-acid text-sm font-bold">Shuffle</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push("/lists")}>
+              <Text className="text-nebula text-lg">📋</Text>
+            </Pressable>
+          </View>
         </View>
 
         <Text className="text-white/50 mb-4">
@@ -256,6 +290,7 @@ export default function Results() {
                   bar={item}
                   index={index}
                   onPress={() => router.push(`/bar/${item.id}`)}
+                  onAddToList={handleAddBarToList}
                 />
               )}
               contentContainerStyle={{ paddingBottom: 120 }}
@@ -276,6 +311,64 @@ export default function Results() {
             </Pressable>
           </View>
         )}
+
+        {/* Save to list modal */}
+        <Modal transparent animationType="fade" visible={showListModal}>
+          <View className="flex-1 bg-black/50 items-center justify-center px-6">
+            <View className="bg-void rounded-2xl p-6 w-full max-w-sm border border-white/10">
+              <Text className="text-white text-xl font-bold mb-2">Save to list</Text>
+              <Text className="text-white/50 text-sm mb-4">{selectedBarForList?.name}</Text>
+
+              {/* Existing lists */}
+              {savedLists.length > 0 && (
+                <>
+                  <Text className="text-white/70 text-xs font-semibold mb-2">Add to existing:</Text>
+                  <FlatList
+                    data={savedLists}
+                    keyExtractor={(item) => item.id}
+                    scrollEnabled={false}
+                    renderItem={({ item }) => (
+                      <Pressable
+                        onPress={() => handleSelectExistingList(item.id)}
+                        className="bg-white/10 rounded-lg p-3 mb-2 border border-white/20"
+                      >
+                        <Text className="text-white font-semibold text-sm">{item.name}</Text>
+                        <Text className="text-white/50 text-xs">{item.bars.length} bars</Text>
+                      </Pressable>
+                    )}
+                  />
+                  <View className="h-px bg-white/10 my-3" />
+                </>
+              )}
+
+              {/* Create new list */}
+              <Text className="text-white/70 text-xs font-semibold mb-2">Create new list:</Text>
+              <TextInput
+                placeholder="List name..."
+                placeholderTextColor="#ffffff40"
+                value={newListName}
+                onChangeText={setNewListName}
+                className="bg-white/10 text-white px-4 py-2 rounded-lg border border-white/20 mb-4"
+              />
+
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => { setShowListModal(false); setSelectedBarForList(null); setNewListName(""); }}
+                  className="flex-1 bg-white/10 rounded-full py-3 items-center"
+                >
+                  <Text className="text-white/60 font-bold">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleCreateNewList}
+                  disabled={!newListName.trim()}
+                  className="flex-1 bg-ufo rounded-full py-3 items-center disabled:opacity-50"
+                >
+                  <Text className="text-void font-bold">Create & Add</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </ThemeBackground>
   );

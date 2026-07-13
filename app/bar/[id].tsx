@@ -187,7 +187,7 @@ export default function BarDetail() {
 
             {/* Back to crawl button */}
             <Pressable
-              onPress={() => router.back()}
+              onPress={() => router.push("/results")}
               className="mt-4 rounded-full py-3 items-center bg-nebula/20 border border-nebula"
             >
               <Text className="text-nebula font-bold">🗺️ Back to crawl</Text>

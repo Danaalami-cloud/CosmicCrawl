@@ -6,14 +6,16 @@ type Props = {
   bar: BarStop;
   index: number;
   onPress: () => void;
+  onAddToList?: (bar: BarStop) => void;
 };
 
-export default function BarCard({ bar, index, onPress }: Props) {
+export default function BarCard({ bar, index, onPress, onAddToList }: Props) {
   return (
-    <Pressable
-      onPress={onPress}
-      className="rounded-2xl overflow-hidden border border-nebula/30 bg-void-light/60 mb-4"
-    >
+    <View className="mb-4 flex-row gap-2">
+      <Pressable
+        onPress={onPress}
+        className="flex-1 rounded-2xl overflow-hidden border border-nebula/30 bg-void-light/60"
+      >
       <View className="flex-row">
         <View className="w-10 items-center justify-center bg-plasma/20">
           <Text className="text-plasma-light font-extrabold text-lg">{index + 1}</Text>
@@ -67,5 +69,16 @@ export default function BarCard({ bar, index, onPress }: Props) {
         </View>
       </View>
     </Pressable>
-  );
+
+    {/* Add to list button */}
+    {onAddToList && (
+      <Pressable
+        onPress={() => onAddToList(bar)}
+        className="w-12 h-24 rounded-2xl bg-ufo/20 border border-ufo/50 items-center justify-center"
+      >
+        <Text className="text-ufo text-xl">+</Text>
+      </Pressable>
+    )}
+  </View>
+);
 }
