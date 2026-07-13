@@ -2,6 +2,7 @@ import React from "react";
 import { Image, Linking, Pressable, ScrollView, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import MapView, { Marker } from "react-native-maps";
 import ThemeBackground from "../../components/ThemeBackground";
 import { useCrawl } from "../../context/CrawlContext";
 
@@ -89,7 +90,37 @@ export default function BarDetail() {
             </View>
           </View>
 
-          {bar.photoUrl ? (
+          {/* Live map view */}
+          {bar && (
+            <View className="px-5 mb-4 h-64 rounded-lg overflow-hidden border border-white/10">
+              <MapView
+                style={{ flex: 1 }}
+                initialRegion={{
+                  latitude: bar.lat,
+                  longitude: bar.lng,
+                  latitudeDelta: 0.02,
+                  longitudeDelta: 0.02,
+                }}
+              >
+                {/* All bar markers */}
+                {bars.map((b, idx) => (
+                  <Marker
+                    key={b.id}
+                    coordinate={{ latitude: b.lat, longitude: b.lng }}
+                    title={`${idx + 1}. ${b.name}`}
+                    description={b.address}
+                    pinColor={
+                      b.id === bar.id
+                        ? "#00D9FF" // Current bar - cyan
+                        : visitedIds.has(b.id)
+                        ? "#B4FF39" // Visited - acid
+                        : "#FF6B6B" // Unvisited - red
+                    }
+                  />
+                ))}
+              </MapView>
+            </View>
+          )}
             <Image
               source={{ uri: bar.photoUrl }}
               className="w-full h-56 mt-3"
@@ -183,6 +214,14 @@ export default function BarDetail() {
                 <View className="flex-1" />
               )}
             </View>
+
+            {/* Back to crawl button */}
+            <Pressable
+              onPress={() => router.back()}
+              className="mt-4 rounded-full py-3 items-center bg-nebula/20 border border-nebula"
+            >
+              <Text className="text-nebula font-bold">🗺️ Back to crawl</Text>
+            </Pressable>
           </View>
         </ScrollView>
       </SafeAreaView>
