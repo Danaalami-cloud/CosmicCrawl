@@ -33,7 +33,7 @@ export async function searchBars({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         filters: {
-          outdoorOnly: filters.outdoorOnly,
+          preferOutdoor: filters.preferOutdoor,
           stopCount: filters.stopCount,
           maxWalkMeters: filters.maxWalkMeters,
           intensity: filters.intensity,

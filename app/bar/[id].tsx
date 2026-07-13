@@ -9,6 +9,9 @@ export default function BarDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { bars, visitedIds, toggleVisited } = useCrawl();
   const bar = bars.find((b) => b.id === id);
+  const currentIndex = bars.findIndex((b) => b.id === id);
+  const prevBar = currentIndex > 0 ? bars[currentIndex - 1] : null;
+  const nextBar = currentIndex < bars.length - 1 ? bars[currentIndex + 1] : null;
 
   if (!bar) {
     return (
@@ -107,6 +110,30 @@ export default function BarDetail() {
             >
               <Text className="text-white font-bold">🔞 Play a game here</Text>
             </Pressable>
+
+            {/* Navigation buttons */}
+            <View className="flex-row gap-3 mt-6">
+              {prevBar ? (
+                <Pressable
+                  onPress={() => router.push(`/bar/${prevBar.id}`)}
+                  className="flex-1 rounded-full py-4 items-center bg-white/10 border border-white/20"
+                >
+                  <Text className="text-white font-bold">← Previous</Text>
+                </Pressable>
+              ) : (
+                <View className="flex-1" />
+              )}
+              {nextBar ? (
+                <Pressable
+                  onPress={() => router.push(`/bar/${nextBar.id}`)}
+                  className="flex-1 rounded-full py-4 items-center bg-ufo"
+                >
+                  <Text className="text-white font-bold">Next →</Text>
+                </Pressable>
+              ) : (
+                <View className="flex-1" />
+              )}
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>

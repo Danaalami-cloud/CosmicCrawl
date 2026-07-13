@@ -13,7 +13,7 @@ type ThemeOption = {
 };
 
 type CrawlFilters = {
-  outdoorOnly: boolean;
+  preferOutdoor: boolean;
   stopCount: number;
   maxWalkMeters: number;
   intensity: Intensity;
@@ -86,14 +86,14 @@ export const handler = async (event: any) => {
   const coords = body.coords ?? null;
   const cityText = body.cityText;
   const filters: CrawlFilters = {
-    outdoorOnly: body.filters?.outdoorOnly ?? false,
+    preferOutdoor: body.filters?.preferOutdoor ?? false,
     stopCount: body.filters?.stopCount ?? 4,
     maxWalkMeters: body.filters?.maxWalkMeters ?? 1500,
     intensity: body.filters?.intensity ?? "spicy",
   };
 
   const googleBody: Record<string, unknown> = {
-    textQuery: buildTextQuery(theme, filters.outdoorOnly, cityText),
+    textQuery: buildTextQuery(theme, filters.preferOutdoor, cityText),
     includedType: "bar",
     maxResultCount: 20,
     minRating: 3.5,
@@ -161,8 +161,10 @@ export const handler = async (event: any) => {
     mapsUri: p.googleMapsUri ?? null,
   }));
 
-  if (filters.outdoorOnly) {
+  if (filters.preferOutdoor) {
     const knownOutdoor = stops.filter((s) => s.outdoorSeating === true);
+    // If Google just didn't populate the field for most results, don't nuke
+    // the list — fall back to all results and let outdoor preference be a bonus.
     stops = knownOutdoor.length > 0 ? knownOutdoor : stops;
   }
 

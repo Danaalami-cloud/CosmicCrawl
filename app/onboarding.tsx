@@ -133,10 +133,10 @@ export default function Onboarding() {
           </Text>
           <View className="flex-row flex-wrap mb-6">
             <FilterChip
-              label="🌤️ Outdoor seating only"
-              active={filters.outdoorOnly}
+              label="🌤️ Prefer outdoor seating"
+              active={filters.preferOutdoor}
               onPress={() =>
-                setFilters((f) => ({ ...f, outdoorOnly: !f.outdoorOnly }))
+                setFilters((f) => ({ ...f, preferOutdoor: !f.preferOutdoor }))
               }
             />
           </View>

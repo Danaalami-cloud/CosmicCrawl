@@ -25,7 +25,7 @@ export type CrawlFilters = {
   occasionId: string | null;
   themeId: string | null; // preset id, or "custom" when using free text
   customThemeText: string; // raw text when the user types their own theme
-  outdoorOnly: boolean;
+  preferOutdoor: boolean; // prefer outdoor seating, but not required
   groupSize: number;
   stopCount: number; // number of bars in the crawl
   maxWalkMeters: number;

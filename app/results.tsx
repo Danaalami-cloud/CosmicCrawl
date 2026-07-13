@@ -15,7 +15,7 @@ import { useCrawl } from "../context/CrawlContext";
 import { PlacesApiError, searchBars } from "../services/placesService";
 
 export default function Results() {
-  const { filters, selectedTheme, selectedOccasion, bars, setBars } =
+  const { filters, selectedTheme, selectedOccasion, bars, setBars, setUserLocation, visitedIds } =
     useCrawl();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +50,7 @@ export default function Results() {
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude,
           };
+          setUserLocation(coords);
         }
       } catch (locErr) {
         console.warn(
@@ -66,7 +67,7 @@ export default function Results() {
 
       if (results.length === 0) {
         setError(
-          "No bars matched your filters nearby. Try turning off 'outdoor seating only' or picking a different theme."
+          "No bars matched your filters nearby. Try turning off the outdoor seating preference or picking a different theme."
         );
       }
       setBars(results);
@@ -98,7 +99,7 @@ export default function Results() {
 
         <Text className="text-white/50 mb-4">
           {selectedOccasion?.emoji} {selectedOccasion?.label} · {filters.groupSize} people ·{" "}
-          {filters.outdoorOnly ? "Outdoor seating" : "Any seating"}
+          {filters.preferOutdoor ? "Prefer outdoor seating" : "Any seating"}
         </Text>
 
         {loading && (
@@ -122,31 +123,59 @@ export default function Results() {
         )}
 
         {!loading && !error && (
-          <FlatList
-            data={bars}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item, index }) => (
-              <BarCard
-                bar={item}
-                index={index}
-                onPress={() => router.push(`/bar/${item.id}`)}
-              />
+          <>
+            {/* Visited places count + mini map preview */}
+            {visitedIds.size > 0 && (
+              <View className="mb-4 p-4 bg-plasma/10 rounded-lg border border-plasma/30">
+                <Text className="text-plasma font-bold mb-2">
+                  ✓ {visitedIds.size} / {bars.length} stops visited
+                </Text>
+                <View className="flex-row gap-2 flex-wrap">
+                  {bars.map((bar, idx) => (
+                    <View
+                      key={bar.id}
+                      className={`w-8 h-8 rounded-full items-center justify-center text-xs font-bold ${
+                        visitedIds.has(bar.id)
+                          ? "bg-ufo text-void"
+                          : "bg-white/20 text-white/50"
+                      }`}
+                    >
+                      <Text>{idx + 1}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
             )}
-            contentContainerStyle={{ paddingBottom: 120 }}
-            showsVerticalScrollIndicator={false}
-          />
+
+            {/* Bars list */}
+            <FlatList
+              data={bars}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item, index }) => (
+                <BarCard
+                  bar={item}
+                  index={index}
+                  onPress={() => router.push(`/bar/${item.id}`)}
+                />
+              )}
+              contentContainerStyle={{ paddingBottom: 120 }}
+              showsVerticalScrollIndicator={false}
+            />
+          </>
         )}
 
-        <View className="absolute bottom-6 left-5 right-5">
-          <Pressable
-            onPress={() => router.push("/games")}
-            className="bg-plasma rounded-full py-4 items-center"
-          >
-            <Text className="text-white font-extrabold text-base">
-              🔞 Play a game at your next stop
-            </Text>
-          </Pressable>
-        </View>
+        {!loading && !error && bars.length > 0 && (
+          <View className="absolute bottom-6 left-5 right-5">
+            <Pressable
+              onPress={() => router.push("/games")}
+              className="bg-plasma rounded-full py-4 items-center"
+            >
+              <Text className="text-white font-extrabold text-base">
+                🔞 Play a game at your next stop
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </SafeAreaView>
     </ThemeBackground>
   );
