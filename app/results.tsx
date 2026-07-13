@@ -173,26 +173,28 @@ export default function Results() {
             {/* Search results */}
             {searching && <ActivityIndicator color="#B4FF39" />}
             {searchResults.length > 0 && (
-              <FlatList
-                data={searchResults}
-                keyExtractor={(item) => item.id}
-                scrollEnabled={false}
-                renderItem={({ item }) => (
-                  <Pressable
-                    onPress={() => addBarToCrawl(item)}
-                    className="bg-white/10 rounded-lg p-3 mb-2 flex-row justify-between items-center border border-white/20"
-                  >
-                    <View className="flex-1">
-                      <Text className="text-white font-semibold">{item.name}</Text>
-                      <Text className="text-white/50 text-xs">{item.address}</Text>
-                      {item.rating && (
-                        <Text className="text-acid text-xs mt-1">★ {item.rating.toFixed(1)}</Text>
-                      )}
-                    </View>
-                    <Text className="text-ufo text-lg">+</Text>
-                  </Pressable>
-                )}
-              />
+              <View className="max-h-80">
+                <FlatList
+                  data={searchResults}
+                  keyExtractor={(item) => item.id}
+                  scrollEnabled={true}
+                  renderItem={({ item }) => (
+                    <Pressable
+                      onPress={() => addBarToCrawl(item)}
+                      className="bg-white/10 rounded-lg p-3 mb-2 flex-row justify-between items-center border border-white/20"
+                    >
+                      <View className="flex-1">
+                        <Text className="text-white font-semibold">{item.name}</Text>
+                        <Text className="text-white/50 text-xs">{item.address}</Text>
+                        {item.rating && (
+                          <Text className="text-acid text-xs mt-1">★ {item.rating.toFixed(1)}</Text>
+                        )}
+                      </View>
+                      <Text className="text-ufo text-lg">+</Text>
+                    </Pressable>
+                  )}
+                />
+              </View>
             )}
             {!searching && searchQuery.trim() && searchResults.length === 0 && (
               <Text className="text-white/50 text-sm text-center py-2">No bars found</Text>
