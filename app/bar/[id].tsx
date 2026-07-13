@@ -29,15 +29,64 @@ export default function BarDetail() {
   }
 
   const visited = visitedIds.has(bar.id);
+  const visitedCount = visitedIds.size;
+  const totalStops = bars.length;
+  const stopNumber = currentIndex + 1;
 
   return (
     <ThemeBackground>
       <SafeAreaView className="flex-1">
         <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
-          <View className="px-5 pt-2 flex-row items-center justify-between">
+          {/* Header with back button and progress */}
+          <View className="px-5 pt-2 flex-row items-center justify-between mb-4">
             <Pressable onPress={() => router.back()}>
               <Text className="text-white/60 text-2xl">←</Text>
             </Pressable>
+            <Text className="text-white/60 text-sm font-semibold">
+              Stop {stopNumber} of {totalStops} • {visitedCount} visited
+            </Text>
+            <View className="w-6" />
+          </View>
+
+          {/* Progress map - visual journey */}
+          <View className="px-5 mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
+            <View className="flex-row gap-1 items-center justify-center flex-wrap">
+              {bars.map((b, idx) => (
+                <React.Fragment key={b.id}>
+                  <Pressable
+                    onPress={() => router.push(`/bar/${b.id}`)}
+                    className={`w-10 h-10 rounded-full items-center justify-center font-bold text-xs ${
+                      b.id === bar.id
+                        ? "bg-ufo ring-2 ring-ufo/50"
+                        : visitedIds.has(b.id)
+                        ? "bg-acid/30 border border-acid"
+                        : "bg-white/20 border border-white/20"
+                    }`}
+                  >
+                    <Text
+                      className={`font-extrabold ${
+                        b.id === bar.id
+                          ? "text-void"
+                          : visitedIds.has(b.id)
+                          ? "text-acid"
+                          : "text-white/60"
+                      }`}
+                    >
+                      {idx + 1}
+                    </Text>
+                  </Pressable>
+                  {idx < bars.length - 1 && (
+                    <View
+                      className={`h-0.5 w-3 ${
+                        visitedIds.has(b.id) && visitedIds.has(bars[idx + 1].id)
+                          ? "bg-acid"
+                          : "bg-white/20"
+                      }`}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
+            </View>
           </View>
 
           {bar.photoUrl ? (
