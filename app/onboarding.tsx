@@ -65,9 +65,14 @@ export default function Onboarding() {
             <Text className="text-white text-2xl font-extrabold">
               Build your crawl 🛸
             </Text>
-            <Pressable onPress={() => router.push("/settings")}>
-              <Text className="text-white/40 text-xl">⚙️</Text>
-            </Pressable>
+            <View className="flex-row gap-3">
+              <Pressable onPress={() => router.push("/lists")}>
+                <Text className="text-nebula text-lg">📋</Text>
+              </Pressable>
+              <Pressable onPress={() => router.push("/settings")}>
+                <Text className="text-white/40 text-xl">⚙️</Text>
+              </Pressable>
+            </View>
           </View>
           <Text className="text-white/50 mb-6">
             Pick your reason to celebrate, a theme (any theme), and how spicy
