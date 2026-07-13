@@ -47,7 +47,7 @@ export async function searchBars({
             }
           : null,
         coords,
-        cityText,
+        cityText: cityText || filters.crawlLocation,
       }),
     });
   } catch {

@@ -141,6 +141,19 @@ export default function Onboarding() {
             />
           </View>
 
+          <Text className="text-ufo font-bold uppercase text-xs tracking-wider mb-3">
+            Where do you want to crawl?
+          </Text>
+          <TextInput
+            value={filters.crawlLocation}
+            onChangeText={(text) =>
+              setFilters((f) => ({ ...f, crawlLocation: text }))
+            }
+            placeholder="e.g., Northen Quarter, Deansgate, Ancoats"
+            placeholderTextColor="#ffffff40"
+            className="rounded-xl border px-4 py-3 text-white mb-6 bg-void-light/70 border-ufo/30"
+          />
+
           <Text className="text-starlight font-bold uppercase text-xs tracking-wider mb-3">
             Crawl length (stops)
           </Text>

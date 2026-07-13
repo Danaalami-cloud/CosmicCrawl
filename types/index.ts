@@ -30,6 +30,7 @@ export type CrawlFilters = {
   stopCount: number; // number of bars in the crawl
   maxWalkMeters: number;
   intensity: Intensity;
+  crawlLocation: string; // where user wants to start/stay (e.g., "Brooklyn", "Downtown")
 };
 
 export type BarStop = {

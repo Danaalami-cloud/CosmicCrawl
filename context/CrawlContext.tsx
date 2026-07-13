@@ -10,6 +10,7 @@ const DEFAULT_FILTERS: CrawlFilters = {
   stopCount: 4,
   maxWalkMeters: 1500,
   intensity: "spicy",
+  crawlLocation: "",
 };
 
 type CrawlContextValue = {
