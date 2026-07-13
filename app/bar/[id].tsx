@@ -1,10 +1,42 @@
 import React from "react";
-import { Image, Linking, Pressable, ScrollView, Text, View } from "react-native";
+import { Image, Linking, Pressable, ScrollView, Text, View, Platform } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MapView, { Marker } from "react-native-maps";
 import ThemeBackground from "../../components/ThemeBackground";
 import { useCrawl } from "../../context/CrawlContext";
+
+// Import MapView only on native platforms
+let MapView: any = null;
+let Marker: any = null;
+if (Platform.OS !== "web") {
+  try {
+    const maps = require("react-native-maps");
+    MapView = maps.default;
+    Marker = maps.Marker;
+  } catch (e) {
+    console.warn("react-native-maps not available", e);
+  }
+}
+
+// For web - Google Maps embed component
+const WebMapEmbed = ({ lat, lng, markers }: any) => {
+  const markersParam = markers
+    .map((m: any, idx: number) => `${m.lat},${m.lng}`)
+    .join("|");
+  
+  const mapUrl = `https://www.google.com/maps/embed/v1/view?key=AIzaSyBVH-wWP4Rlq0e8MZZUyXXKe1y8dZvwSFw&center=${lat},${lng}&zoom=15`;
+  
+  return (
+    <iframe
+      width="100%"
+      height="256"
+      style={{ border: 0, borderRadius: 8 }}
+      loading="lazy"
+      src={mapUrl}
+      title="Bar Location Map"
+    />
+  );
+};
 
 export default function BarDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -90,8 +122,8 @@ export default function BarDetail() {
             </View>
           </View>
 
-          {/* Live map view */}
-          {bar && (
+          {/* Live map view - native */}
+          {MapView && bar && (
             <View className="px-5 mb-4 h-64 rounded-lg overflow-hidden border border-white/10">
               <MapView
                 style={{ flex: 1 }}
@@ -119,6 +151,13 @@ export default function BarDetail() {
                   />
                 ))}
               </MapView>
+            </View>
+          )}
+
+          {/* Live map view - web */}
+          {Platform.OS === "web" && bar && (
+            <View className="px-5 mb-4 rounded-lg overflow-hidden border border-white/10">
+              <WebMapEmbed lat={bar.lat} lng={bar.lng} markers={bars} />
             </View>
           )}
             <Image
